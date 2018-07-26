@@ -16,6 +16,7 @@ ipywidgets = "*"
 kaggle-cli = "*"
 #tensorflow = "*"
 tensorflow-gpu = "*"
+seaborn = "*"
 
 [dev-packages]
 
@@ -24,4 +25,3 @@ python_version = "3.6.5"
 
 [scripts]
 jlab-setup = "jupyter labextension install @jupyter-widgets/jupyterlab-manager"
-
