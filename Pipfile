@@ -13,10 +13,11 @@ pillow = "*"
 scikit-image = "*"
 tqdm = "*"
 ipywidgets = "*"
-kaggle-cli = "*"
 #tensorflow = "*"
 tensorflow-gpu = "*"
 seaborn = "*"
+scikit-learn = "*"
+kaggle = "*"
 
 [dev-packages]
 
