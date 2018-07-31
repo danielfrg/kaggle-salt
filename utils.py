@@ -1,11 +1,15 @@
 import math
+import random 
 
+import tqdm
 import bcolz
 import numpy as np
+import matplotlib.pyplot as plt
 from skimage.transform import resize
 
 import tensorflow as tf
 from tensorflow.keras import backend as K
+from tensorflow.keras.preprocessing import image as image_utils
 
 
 OR_IM_WIDTH = 101
@@ -108,3 +112,45 @@ def mean_iou(y_true, y_pred):
         prec.append(score)
     return K.mean(K.stack(prec), axis=0)
 
+
+def plot_arrays(*args, n=6, figsize=(15, 5), randomize=True, strata=None):
+    """
+    args: single or multiple arrays to plot (n, height, width, channel)
+    n: number of images to plot from the array
+    strata: if not None it will plot one image per stratum
+    """
+    fig, axarr = plt.subplots(len(args), n, figsize=figsize)
+    for i in range(n):
+        arrays = args
+        if strata is not None:
+            arrays = []
+            for arr in args:
+                arrays.append(arr[strata == i])
+        if randomize:
+            rand = random.randint(0, arrays[0].shape[0])
+        for y, array in enumerate(arrays):
+            image = array[rand]
+            if image.shape[2] == 1:
+                # This is if we reduced it to only one channel
+                image = image_utils.array_to_img(array[rand])
+            if len(args) == 1:
+                axarr[i].imshow(image)
+            else:
+                axarr[y, i].imshow(image)
+    fig.tight_layout()
+    
+
+def gen_strata(target, n=11):
+    coverage_pct = np.zeros((target.shape[0], ), dtype=np.float64)
+    
+    for i, mask in tqdm.tqdm_notebook(enumerate(target), total=target.shape[0]):
+        coverage_pct[i] = np.mean(mask) / 255
+        
+    def cov_to_class(val):    
+        for i in range(0, n):
+            if val * (n - 1) <= i :
+                return i
+    v_cov_to_class = np.vectorize(cov_to_class)
+    strata = v_cov_to_class(coverage_pct)
+        
+    return coverage_pct, strata
